@@ -1,4 +1,5 @@
-package org.example.school;
+package org.example.school.model;
+
 
 public class Course {
     private final long id;
@@ -29,6 +30,22 @@ public class Course {
 
     public void setCapacity(int capacity) {
         this.capacity = capacity;
+    }
+
+    public String getInitials() {
+        if (title == null || title.isBlank()) {
+            return "";
+        }
+
+        String[] words = title.trim().split("\\s+");
+        if (words.length == 1) {
+            return words[0].substring(0, 1).toUpperCase();
+        }
+
+        int last = words.length - 1;
+        return (
+                words[last].substring(0, 1)
+        ).toUpperCase();
     }
 
     @Override

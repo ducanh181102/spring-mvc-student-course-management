@@ -16,3 +16,8 @@ CREATE TABLE IF NOT EXISTS enrollment (
     FOREIGN KEY (student_id) REFERENCES student(id),
     FOREIGN KEY (course_id) REFERENCES course(id)
 );
+
+CREATE TABLE IF NOT EXISTS sample_data_seed (
+    seed_key VARCHAR(100) PRIMARY KEY,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+);

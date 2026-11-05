@@ -1,4 +1,9 @@
-package org.example.school;
+package org.example.school.service;
+
+import org.example.school.model.Course;
+import org.example.school.model.Enrollment;
+import org.example.school.repository.CourseRepository;
+import org.example.school.repository.EnrollmentRepository;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -13,6 +18,14 @@ public class CourseService {
     public CourseService(CourseRepository courseRepository, EnrollmentRepository enrollmentRepository) {
         this.courseRepository = courseRepository;
         this.enrollmentRepository = enrollmentRepository;
+    }
+
+    public long getNextId() {
+        return courseRepository.getNextId();
+    }
+
+    public Course getCourse(long id) {
+        return courseRepository.getById(id);
     }
 
     public List<Course> getCourseList() {

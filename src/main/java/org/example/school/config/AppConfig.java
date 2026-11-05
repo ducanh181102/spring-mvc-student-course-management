@@ -1,11 +1,11 @@
-package org.example.school;
+package org.example.school.config;
 
 import javax.sql.DataSource;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.transaction.annotation.EnableTransactionManagement;
+import org.springframework.context.annotation.DependsOn;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
@@ -13,9 +13,10 @@ import org.springframework.jdbc.datasource.DriverManagerDataSource;
 import org.springframework.jdbc.datasource.init.DataSourceInitializer;
 import org.springframework.jdbc.datasource.init.ResourceDatabasePopulator;
 import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 @Configuration
-@ComponentScan("org.example.school")
+@ComponentScan({"org.example.school.repository", "org.example.school.service"})
 @EnableTransactionManagement
 public class AppConfig {
 
@@ -47,5 +48,14 @@ public class AppConfig {
                 new ResourceDatabasePopulator(new ClassPathResource("schema.sql"))
         );
         return initializer;
+    }
+
+    @Bean
+    @DependsOn("databaseInitializer")
+    public SampleDataInitializer sampleDataInitializer(
+            JdbcTemplate jdbcTemplate,
+            PlatformTransactionManager transactionManager
+    ) {
+        return new SampleDataInitializer(jdbcTemplate, transactionManager);
     }
 }

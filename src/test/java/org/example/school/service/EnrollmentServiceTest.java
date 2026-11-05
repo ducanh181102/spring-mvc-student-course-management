@@ -1,4 +1,11 @@
-package org.example.school;
+package org.example.school.service;
+
+import org.example.school.model.Course;
+import org.example.school.model.Enrollment;
+import org.example.school.model.Student;
+import org.example.school.repository.CourseRepository;
+import org.example.school.repository.EnrollmentRepository;
+import org.example.school.repository.StudentRepository;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

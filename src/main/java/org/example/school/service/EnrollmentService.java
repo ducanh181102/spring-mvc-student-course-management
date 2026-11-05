@@ -1,4 +1,12 @@
-package org.example.school;
+package org.example.school.service;
+
+import org.example.school.dto.EnrollmentView;
+import org.example.school.model.Course;
+import org.example.school.model.Enrollment;
+import org.example.school.model.Student;
+import org.example.school.repository.CourseRepository;
+import org.example.school.repository.EnrollmentRepository;
+import org.example.school.repository.StudentRepository;
 
 import org.springframework.stereotype.Service;
 
@@ -47,6 +55,36 @@ public class EnrollmentService {
         this.enrollmentRepository.save(enrollment);
     }
 
+    public List<Enrollment> getEnrollmentByStudentId(long studentId) {
+        if (!this.studentRepository.existsById(studentId)) {
+            throw new IllegalArgumentException("Học viên " +
+                    studentId + " không tồn tại.");
+        }
+        return enrollmentRepository.findByStudentId(studentId);
+    }
+
+    public List<Course> getCoursesByStudentId(long studentId) {
+        if (!this.studentRepository.existsById(studentId)) {
+            throw new IllegalArgumentException("Học viên " +
+                    studentId + " không tồn tại.");
+        }
+        return getEnrollmentByStudentId(studentId).stream()
+                .map(enrollment -> courseRepository
+                        .getById(enrollment.getCourseId())).toList();
+    }
+
+    public List<Course> getEnrollmentedAllCourses() {
+        return getEnrollmentAll().stream().map(enrollment -> courseRepository.getById(enrollment.getCourseId())).toList();
+    }
+
+    public List<Student> getEnrollmentedAllStudents() {
+        return getEnrollmentAll().stream().map(enrollment -> studentRepository.findById(enrollment.getStudentId())).toList();
+    }
+
+    public int countByCourseId(long courseId) {
+        return enrollmentRepository.countByCourseId(courseId);
+    }
+
     public void cancelEnrollment(long studentId, long courseId) {
         if (!this.studentRepository.existsById(studentId)) {
             throw new IllegalArgumentException("Học viên " +
@@ -61,5 +99,8 @@ public class EnrollmentService {
         this.enrollmentRepository.delete(studentId, courseId);
     }
 
+    public List<EnrollmentView> getEnrollmentViewList() {
+        return enrollmentRepository.findAllViews();
+    }
 
 }

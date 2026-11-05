@@ -1,39 +1,88 @@
 # Spring MVC Student Course Management
 
-Dự án quản lý học viên, khóa học và đăng ký khóa học, được dùng để học Spring Framework mà không dùng Spring Boot.
+Ứng dụng web quản lý sinh viên, khóa học và việc đăng ký khóa học. Dự án sử dụng Spring MVC cấu hình thủ công, không dùng Spring Boot; các trang được render bằng JSP.
 
-## Trạng thái hiện tại
+## Chức năng
 
-Dự án đang ở giai đoạn nền tảng Spring Core: chương trình chạy bằng menu console, dùng Spring để quản lý dependency và Spring JDBC để làm việc với H2. Các controller, cấu hình Servlet và REST API bằng Spring MVC chưa được triển khai.
-
-## Chức năng hiện có
-
-- Quản lý học viên: xem danh sách, thêm, sửa tên và xóa.
-- Quản lý khóa học: xem danh sách, thêm, sửa tên, cập nhật sức chứa và xóa.
-- Quản lý đăng ký: xem danh sách, đăng ký học viên vào khóa học và hủy đăng ký.
-- Kiểm tra học viên hoặc khóa học tồn tại, đăng ký trùng và giới hạn sức chứa.
-- Xóa đăng ký liên quan trong transaction khi xóa học viên hoặc khóa học.
+- **Sinh viên:** xem danh sách, tìm kiếm/lọc, xem thông tin, thêm, sửa tên và xóa.
+- **Khóa học:** xem danh sách, tìm kiếm/lọc, xem thông tin, thêm, sửa tên và sức chứa, xóa.
+- **Đăng ký khóa học:** xem lượt đăng ký, thêm đăng ký và hủy đăng ký.
+- Kiểm tra sinh viên/khóa học tồn tại, ngăn đăng ký trùng và từ chối đăng ký khi khóa học đã đủ chỗ.
+- Khi xóa sinh viên hoặc khóa học, các đăng ký liên quan được xử lý trong transaction.
+- **Cài đặt giao diện:** đổi theme và ngôn ngữ; lựa chọn được lưu ở trình duyệt.
+- Trang lỗi dùng chung để hiển thị lỗi nghiệp vụ.
 
 ## Công nghệ
 
 - Java 21
-- Spring Context 7.0.10
-- Spring JDBC 7.0.10 (`JdbcTemplate`)
-- Spring Transaction (`DataSourceTransactionManager`, `@Transactional`)
-- H2 Database 2.5.250, lưu trữ trên file
-- JUnit Jupiter 6.0.3
 - Maven
+- Spring Framework 7.0.10: Spring Context, Spring MVC, Spring JDBC và Spring Transaction
+- Jakarta Servlet API 6.1.0; chạy trên Servlet container như Apache Tomcat 11
+- JSP và Jakarta JSTL 3.0.1
+- H2 Database 2.5.250, lưu trên file
+- JUnit Jupiter 6.0.3, Spring Test 7.0.10 và Mockito 5.24.0
+- HTML, CSS và JavaScript
 
-## Yêu cầu
+## Cấu trúc ứng dụng
 
-- JDK 21
-- Maven
+```text
+src/
+├── main/
+│   ├── java/org/example/school/
+│   │   ├── config/       cấu hình Spring, Servlet, database và dữ liệu mẫu
+│   │   ├── controller/   nhận request và chọn trang trả về
+│   │   ├── dto/          dữ liệu tổng hợp để hiển thị
+│   │   ├── model/        Student, Course, Enrollment
+│   │   ├── repository/   truy vấn database bằng JdbcTemplate
+│   │   └── service/      quy tắc nghiệp vụ
+│   ├── resources/schema.sql
+│   └── webapp/
+│       ├── WEB-INF/views/ JSP và các fragment dùng chung
+│       ├── css/           kiểu giao diện
+│       └── js/            tương tác, theme và ngôn ngữ
+└── test/java/             unit test, test MVC và test tích hợp
+```
+
+Luồng xử lý chính:
+
+```text
+Trình duyệt → Tomcat → DispatcherServlet → Controller
+           → Service → Repository/JdbcTemplate → H2
+           → Controller/Model → JSP → HTML trả về trình duyệt
+```
+
+## Đường dẫn chính
+
+- `/students` — quản lý sinh viên
+- `/courses` — quản lý khóa học
+- `/enrollments` — quản lý đăng ký
+- `/settings` — cài đặt giao diện
+
+Các đường dẫn này nằm bên trong context path do Tomcat cấp cho ứng dụng.
+
+## Database và dữ liệu mẫu
+
+- Cấu hình database và Spring bean nằm trong `src/main/java/org/example/school/config/AppConfig.java`.
+- H2 dùng URL `jdbc:h2:file:./data/school`; vị trí tương đối với working directory của tiến trình chạy ứng dụng.
+- Các bảng được tạo từ `src/main/resources/schema.sql`.
+- Lần khởi động đầu, ứng dụng tạo 200 sinh viên, 30 khóa học và 1.000 lượt đăng ký mẫu. Bảng `sample_data_seed` ghi nhận dữ liệu đã được tạo để tránh thêm lặp ở lần khởi động sau.
+- Thư mục `data/` chứa database local và được Git bỏ qua.
 
 ## Chạy ứng dụng
 
-Mở dự án bằng IntelliJ IDEA, tải lại cấu hình Maven, sau đó chạy `src/main/java/org/example/school/Main.java`.
+Yêu cầu JDK 21, Maven và Apache Tomcat 11. Mở dự án dưới dạng Maven project, build WAR:
 
-Ứng dụng hiển thị menu console. Nhập số chức năng từ `0` đến `12`; chọn `0` để thoát.
+```bash
+mvn clean package
+```
+
+WAR được tạo tại:
+
+```text
+target/spring-mvc-student-course-management-1.0-SNAPSHOT.war
+```
+
+Triển khai WAR lên Tomcat rồi mở ứng dụng theo context path mà Tomcat gán cho WAR.
 
 ## Chạy kiểm thử
 
@@ -41,28 +90,4 @@ Mở dự án bằng IntelliJ IDEA, tải lại cấu hình Maven, sau đó ch�
 mvn test
 ```
 
-## Cơ sở dữ liệu
-
-- Cấu hình kết nối nằm trong `AppConfig`.
-- H2 dùng URL `jdbc:h2:file:./data/school`.
-- Bảng được khởi tạo từ `src/main/resources/schema.sql`.
-- Dữ liệu nằm trong thư mục `data/` theo working directory và được Git bỏ qua.
-
-## Cấu trúc mã nguồn
-
-```text
-src/
-├── main/
-│   ├── java/org/example/school/
-│   │   ├── AppConfig.java
-│   │   ├── Main.java
-│   │   ├── Student.java, Course.java, Enrollment.java
-│   │   ├── *Repository.java
-│   │   └── *Service.java
-│   └── resources/schema.sql
-└── test/java/org/example/school/EnrollmentServiceTest.java
-```
-
-## Hướng phát triển
-
-Bước tiếp theo là thêm Spring MVC theo cách cấu hình thủ công: Servlet container, `DispatcherServlet`, cấu hình MVC và controller. Dự án không dùng Spring Boot.
+Test bao gồm unit test cho service với repository mock, test luồng Spring MVC và test tích hợp service với database.

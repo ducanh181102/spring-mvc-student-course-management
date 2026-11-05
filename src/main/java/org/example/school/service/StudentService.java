@@ -1,4 +1,9 @@
-package org.example.school;
+package org.example.school.service;
+
+import org.example.school.model.Enrollment;
+import org.example.school.model.Student;
+import org.example.school.repository.EnrollmentRepository;
+import org.example.school.repository.StudentRepository;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -17,6 +22,14 @@ public class StudentService {
 
     public List<Student> getAllStudents() {
         return studentRepository.findAll();
+    }
+
+    public Student getStudent(long id) {
+        return studentRepository.findById(id);
+    }
+
+    public long getNextId() {
+        return studentRepository.getNextId();
     }
 
     public void addStudent(Student student) {

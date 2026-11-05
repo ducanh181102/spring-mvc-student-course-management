@@ -1,10 +1,13 @@
-package org.example.school;
+package org.example.school.repository;
+
+import org.example.school.dto.EnrollmentView;
+import org.example.school.model.Course;
+import org.example.school.model.Enrollment;
+import org.example.school.model.Student;
 
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
-import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 @Repository
@@ -18,9 +21,24 @@ public class EnrollmentRepository {
 
     public List<Enrollment> findAll() {
         return jdbcTemplate.query(
-                "SELECT student_id, course_id FROM enrollment ORDER BY student_id",
+                "SELECT student_id, course_id FROM enrollment ORDER BY student_id DESC",
                 ((rs, rowNum) -> new Enrollment(rs.getLong("student_id"),
                         rs.getLong("course_id")))
+        );
+    }
+
+    public List<EnrollmentView> findAllViews() {
+        return jdbcTemplate.query(
+                "SELECT e.student_id, s.full_name, e.course_id, c.title, c.capacity " +
+                        "FROM enrollment e " +
+                        "JOIN student s ON s.id = e.student_id " +
+                        "JOIN course c ON c.id = e.course_id " +
+                        "ORDER BY e.student_id ASC, e.course_id DESC",
+                (rs, rowNum) -> new EnrollmentView(
+                        new Student(rs.getLong("student_id"), rs.getString("full_name")),
+                        new Course(rs.getLong("course_id"), rs.getString("title"),
+                                rs.getInt("capacity"))
+                )
         );
     }
 

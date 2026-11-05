@@ -1,4 +1,6 @@
-package org.example.school;
+package org.example.school.repository;
+
+import org.example.school.model.Course;
 
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
@@ -16,7 +18,7 @@ public class CourseRepository {
 
     public List<Course> findAll() {
         return jdbcTemplate.query(
-                "SELECT id, title, capacity FROM course ORDER BY id",
+                "SELECT id, title, capacity FROM course ORDER BY id DESC",
                 ((rs, rowNum) -> new Course(rs.getLong("id"),
                         rs.getString("title"),
                         rs.getInt("capacity")))
@@ -97,5 +99,13 @@ public class CourseRepository {
                 "DELETE FROM course WHERE id = ?",
                 id
         );
+    }
+
+    public long getNextId() {
+        Integer maxId = jdbcTemplate.queryForObject(
+                "SELECT MAX(id) FROM course",
+                Integer.class
+        );
+        return maxId == null ? 1 : maxId + 1;
     }
 }

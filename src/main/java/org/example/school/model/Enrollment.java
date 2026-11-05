@@ -1,4 +1,8 @@
-package org.example.school;
+package org.example.school.model;
+
+
+import org.example.school.service.CourseService;
+import org.example.school.service.StudentService;
 
 public class Enrollment {
     private final long studentId;

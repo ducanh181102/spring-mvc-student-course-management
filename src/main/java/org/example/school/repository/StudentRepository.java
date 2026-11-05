@@ -1,4 +1,6 @@
-package org.example.school;
+package org.example.school.repository;
+
+import org.example.school.model.Student;
 
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
@@ -15,9 +17,18 @@ public class StudentRepository {
 
     public List<Student> findAll() {
         return jdbcTemplate.query(
-                "SELECT id, full_name FROM student ORDER BY id",
+                "SELECT id, full_name FROM student ORDER BY id DESC",
                 (rs, rowNum) -> new Student(rs.getLong("id"),
                         rs.getString("full_name")));
+    }
+
+    public Student findById(long id) {
+        return jdbcTemplate.queryForObject(
+                "SELECT id, full_name FROM student WHERE id = ?",
+                (rs, rowNum) -> new Student(rs.getLong("id"),
+                        rs.getString("full_name")),
+                id
+        );
     }
 
     public void save(Student student) {
@@ -48,5 +59,13 @@ public class StudentRepository {
                 "DELETE FROM student WHERE id = ?",
                 id
         );
+    }
+
+    public long getNextId() {
+        Integer maxId = jdbcTemplate.queryForObject(
+                "SELECT MAX(id) FROM student",
+                Integer.class
+        );
+        return maxId != null ? maxId + 1 : 1;
     }
 }
